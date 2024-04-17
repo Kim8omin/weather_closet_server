@@ -47,6 +47,46 @@ app.post("/create", upload.single("image"), (req, res) => {
   );
 });
 
+app.get("/posts", (req, res) => {
+  const sql = "SELECT * FROM topic";
+  db.query(sql, (err, result) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json(result);
+  });
+});
+
+app.delete("/posts/:id", (req, res) => {
+  const postId = req.params.id;
+  const sql = "DELETE FROM topic Where id = ?";
+  db.query(sql, [postId], (err, data) => {
+    if (err) return res.json(err);
+    return res.json("post has been deletes");
+  });
+});
+
+app.put("/posts/:id", upload.single("image"), (req, res) => {
+  const postId = req.params.id;
+  const sql =
+    "UPDATE topic SET `name`=?, `title`=?,`posting`=?,`image`=? where id=?";
+  // const { name, title, posting } = req.body;
+  //   const image = req.file.filename; // 이미지 파일명
+  const image = req.file.filename;
+  console.log("req입니다:", req);
+  console.log("req.body입니다:", req.body);
+  console.log("image입니다:", image);
+  //   res.send("올렸습니다 :" + req.file);
+  console.log(req.file);
+  const values = [req.body.name, req.body.title, req.body.posting, image];
+
+  db.query(sql, [...values, postId], (err, data) => {
+    if (err) return res.json(err);
+    return res.json("updated!!!");
+  });
+});
+
 app.listen(3001, () => {
   console.log("Node.js 서버가 3001번 포트에서 실행 중입니다.");
 });
